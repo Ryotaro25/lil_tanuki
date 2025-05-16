@@ -2,9 +2,13 @@
 #define LILTANUKI_SRC_UTIL_MOVE_H_
 
 #include "piece.h"
-#include "position.h"
 #include <functional>
 #include <ostream>
+
+// move.h が position.h を include していて、同時に position.h 
+// が move.h を include しようとすると、循環インクルード が発生する。
+// これはプリプロセッサが止まらなくなるか、あるいはコンパイラが型を解決できずにエラーを出す。
+class Position; 
 
 class Move {
 public:
@@ -35,12 +39,10 @@ public:
   std::string ToString() const;
   // USI形式との相互変換
   std::string ToUsiString() const;
-  Move FromUsiString(const Position& pos, const std::string& str);
+  static Move FromUsiString(const Position& pos, const std::string& str);
 
   // 比較関数
   bool operator==(const Move& other) const;
-
-  
 };
 // クラスの外で宣言する（非メンバ）
 // メンバ関数として定義するとoperator<< が三つの引数を取っている、そんな関数は存在できないよとエラーが出る

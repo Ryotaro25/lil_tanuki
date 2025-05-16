@@ -68,6 +68,12 @@ void RunUsi() {
         } else {
           std::cerr << "info string Invalid position command: " << line << std::endl;
         }
+
+        for (size_t i = next_index; i < tokens.size(); ++i) {
+          if (tokens[i] == "moves") continue;
+          Move move = Move::FromUsiString(position, tokens[i]);
+          position.DoMove(move);
+        }
       }
     } else if (command == "generatemove") {
       for (const auto& move : MoveGenerator::GenerateMoves(position)) {

@@ -145,3 +145,77 @@ void Position::Set(const std::string& sfen) {
   }
   play = std::atoi(sfen.c_str() + index);
 };
+
+void Position::PutPiece(int file, int rank, Piece piece) {
+  assert(file >= 0 && file < BOARD_SIZE);
+  assert(rank >= 0 && rank < BOARD_SIZE);
+  assert(board[file][rank] == Piece::NoPiece);
+  board[file][rank] = piece;
+};
+
+void Position::RemovePiece(int file, int rank) {
+  assert(file >= 0 && file < BOARD_SIZE);
+  assert(rank >= 0 && rank < BOARD_SIZE);
+  assert(board[file][rank] != Piece::NoPiece);
+  board[file][rank] = Piece::NoPiece;
+};
+
+void Position::PutHandPiece(Piece piece) {
+  int index = static_cast<int>(piece);
+  assert(index >= 0 && index < static_cast<int>(Piece::NumPieces));
+  hand_pieces[index]++;
+};
+
+void Position::RemoveHandPiece(Piece piece) {
+  int index = static_cast<int>(piece);
+  assert(index >= 0 && index < static_cast<int>(Piece::NumPieces));
+  assert(hand_pieces[index] > 0);
+  hand_pieces[index]--;
+};
+
+void Position::DoMove(const Move& move) {
+  assert(side_to_move == move.side_to_move);
+  assert(move.drop || board[move.file_from][move.rank_from] == move.piece_from);
+  assert(move.drop || board[move.file_to][move.rank_to] == move.piece_to);
+
+  // 相手の駒を取る
+  if (move.piece_to != Piece::NoPiece) {
+    RemovePiece(move.file_to, move.rank_to);
+    PutHandPiece(PieceHelper::AsOpponentHandPiece(move.piece_to));
+  }
+
+  if (move.drop) {
+    // 持ち駒を打つ
+    RemoveHandPiece(move.piece_from);
+  } else {
+    // 盤面の駒を移動
+    RemovePiece(move.file_from, move.rank_from);
+  }
+
+  Piece final_piece = move.promotion ? Types::AsPromoted(move.piece_from) : move.piece_from;
+  PutPiece(move.file_to, move.rank_to, final_piece);
+  side_to_move = (side_to_move == Color::Black) ? Color::White : Color::Black;
+  play++;
+  last_move = move;
+};
+
+void Position::UndoMove(const Move& move) {
+  assert(side_to_move != move.side_to_move);
+  play--;
+  side_to_move = (side_to_move == Color::Black ? Color::White : Color::Black);
+
+  RemovePiece(move.file_to, move.rank_to);
+  if (move.drop) {
+    // 持ち駒を打った場合 → 盤面から取り除き、持ち駒に戻す
+    PutHandPiece(move.piece_from);
+  } else {
+    // 盤面の駒を元の位置に戻す
+    PutPiece(move.file_from, move.rank_from, move.piece_from);
+  }
+
+  if (move.piece_to != Piece::NoPiece) {
+    // 取った駒を持ち駒から取り除き、盤面に戻す
+    RemoveHandPiece(PieceHelper::AsOpponentHandPiece(move.piece_to));
+    PutPiece(move.file_to, move.rank_to, move.piece_to);
+   }
+};

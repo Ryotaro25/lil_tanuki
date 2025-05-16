@@ -5,11 +5,13 @@
 #include <string>
 #include <vector>
 #include "piece.h"
+#include "move.h"
 
 class Position {
   public:
     static constexpr int BOARD_SIZE = 9;
     Position();
+
     // 手番
     Color side_to_move;
     // 盤面の状態
@@ -18,10 +20,19 @@ class Position {
     int hand_pieces[static_cast<int>(Piece::NumPieces)];
     // 手数
     int play;
-    std::string ToString() const;
+    Move last_move;
 
+    std::string ToString() const;
     void Set(const std::string& sfen);
     static const std::string StartposSfen;
+    void DoMove(const Move& move);
+    void UndoMove(const Move& move);
+
+  private:
+    void PutPiece(int file, int rank, Piece piece);
+    void RemovePiece(int file, int rank);
+    void PutHandPiece(Piece piece);
+    void RemoveHandPiece(Piece piece);
 };
 
 std::ostream& operator<<(std::ostream& os, const Position& position);
