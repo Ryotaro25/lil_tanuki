@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -43,7 +44,19 @@ void RunUsi() {
     } else if (command == "isready") {
       std::cout << "readyok" << std::endl;
     } else if (command == "go") {
-      std::cout << "bestmove resign" << std::endl;
+      std::vector<Move> moves = MoveGenerator::GenerateMoves(position);
+      if (moves.empty()) {
+        std::cout << "bestmove resign" << std::endl;
+      } else {
+        // https://cpprefjp.github.io/reference/random/random_device.html
+        // Random クラスを用いてランダムに指し手を選択
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dist(0, moves.size() - 1);
+        Move move = moves[dist(gen)];
+        std::cout << "bestmove " << move.ToUsiString() << std::endl;
+      }
+      
     } else if (command == "usinewgame" ||
                command == "setoption" ||
                command == "stop" ||
