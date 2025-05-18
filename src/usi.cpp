@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "evaluator.h"
 #include "move_generator.h"
 #include "move.h"
 #include "position.h"
@@ -93,6 +94,8 @@ void RunUsi() {
         std::cout << move << " ";
       }
       std::cout << std::endl;
+    } else if (command == "eval") {
+      std::cout << Evaluator::Evaluate(position) << std::endl;
     } else {
       std::cout << "info string Invalid command received: " << command << std::endl;
     }

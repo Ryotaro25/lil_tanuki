@@ -6,7 +6,7 @@ CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -I/Library/Developer/CommandLineTools/SD
 # 実行ファイル名
 TARGET = LilTanuki
 SRC = src/main.cpp src/usi.cc src/position.cpp src/piece.cpp src/utils/types.cpp src/move.cpp src/direction.cpp src/move_generator.cpp
-HDR = src/usi.h src/position.h src/piece.h src/utils/types.h src/move.h src/direction.h src/move_generator.h
+HDR = src/usi.h src/position.h src/piece.h src/utils/types.h src/move.h src/direction.h src/move_generator.h src/evaluator.h
 
 # オブジェクトファイル（.o）の名前
 OBJ = $(SRC:.cc=.o)
