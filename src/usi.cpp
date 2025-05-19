@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <random>
 #include <sstream>
@@ -8,6 +9,7 @@
 #include "move_generator.h"
 #include "move.h"
 #include "position.h"
+#include "searcher.h"
 #include "usi.h"
 
 const std::string USI_PONDER = "USI_Ponder";
@@ -45,18 +47,44 @@ void RunUsi() {
     } else if (command == "isready") {
       std::cout << "readyok" << std::endl;
     } else if (command == "go") {
-      std::vector<Move> moves = MoveGenerator::GenerateMoves(position);
-      if (moves.empty()) {
-        std::cout << "bestmove resign" << std::endl;
+      int depth = 3;
+      auto begin_time = std::chrono::steady_clock::now();
+      int nodes = 0;
+      BestMove best_move = Searcher::Search(position, depth, nodes);
+      auto end_time = std::chrono::steady_clock::now();
+
+      int time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+      double elapsed_seconds = std::chrono::duration<double>(end_time - begin_time).count();
+      int nps = (int)(nodes / (elapsed_seconds > 0.0 ? elapsed_seconds : 1.0));
+
+      std::string best_move_string = best_move.move.ToUsiString(); // ToUsiString() を実装しておく必要あり
+      int score_cp = best_move.value;
+
+      std::cout << "info depth " << depth
+                << " seldepth " << depth
+                << " time " << time
+                << " nodes " << nodes
+                << " score cp " << score_cp
+                << " nps " << nps
+                << " pv " << best_move_string << std::endl;
+
+      if (best_move.value < -30000) {
+          std::cout << "bestmove resign" << std::endl;
       } else {
-        // https://cpprefjp.github.io/reference/random/random_device.html
-        // Random クラスを用いてランダムに指し手を選択
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dist(0, moves.size() - 1);
-        Move move = moves[dist(gen)];
-        std::cout << "bestmove " << move.ToUsiString() << std::endl;
+          std::cout << "bestmove " << best_move_string << std::endl;
       }
+      // std::vector<Move> moves = MoveGenerator::GenerateMoves(position);
+      // if (moves.empty()) {
+      //   std::cout << "bestmove resign" << std::endl;
+      // } else {
+      //   // https://cpprefjp.github.io/reference/random/random_device.html
+      //   // Random クラスを用いてランダムに指し手を選択
+      //   std::random_device rd;
+      //   std::mt19937 gen(rd());
+      //   std::uniform_int_distribution<> dist(0, moves.size() - 1);
+      //   Move move = moves[dist(gen)];
+      //   std::cout << "bestmove " << move.ToUsiString() << std::endl;
+      // }
       
     } else if (command == "usinewgame" ||
                command == "setoption" ||
