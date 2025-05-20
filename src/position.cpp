@@ -1,5 +1,6 @@
 #include "position.h"
 #include "utils/types.h"
+#include "direction.h"
 
 #include <cstdlib>  // std::atoi
 #include <cstring>
@@ -219,3 +220,53 @@ void Position::UndoMove(const Move& move) {
     PutPiece(move.file_to, move.rank_to, move.piece_to);
    }
 };
+
+std::pair<int, int> Position::FindKing(Color color) {
+  for (int file = 0; file < BOARD_SIZE; ++file) {
+    for (int rank = 0; rank < BOARD_SIZE; ++rank) {
+      Piece p = board[file][rank];
+      if ((color == Color::Black && p == Piece::BlackKing) ||
+          (color == Color::White && p == Piece::WhiteKing)) {
+        return {file, rank};
+      }
+    }
+  }
+  return {-1, -1}; // エラー値
+}
+
+bool Position::IsSquareAttacked(int file, int rank, Color by_color) {
+  // 各マスから、その駒が(file, rank)を攻撃できるかを判定
+  for (int f = 0; f < BOARD_SIZE; f++) {
+    for (int r = 0; r < BOARD_SIZE; r++) {
+      Piece attacker = board[f][r];
+      if (attacker == Piece::NoPiece || PieceHelper::ToColor(attacker) != by_color) {
+        continue;
+      }
+        
+      // attacker の動きが (file, rank) に届くか？
+      for (const auto& md : DirectionTypes::move_directions[static_cast<int>(attacker)]) {
+        int ff = f;
+        int rr = r;
+        int max_dist = md.is_long ? 8 : 1;
+        for (int d = 0; d < max_dist; ++d) {
+          ff += md.dir.df;
+          rr += md.dir.dr;
+          if (ff < 0 || ff >= BOARD_SIZE || rr < 0 || rr >= BOARD_SIZE) {
+            break;
+          }
+
+          if (ff == file && rr == rank) {
+            return true;
+          }
+
+           // 駒で遮られる
+          if (board[ff][rr] != Piece::NoPiece) {
+            break;
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+

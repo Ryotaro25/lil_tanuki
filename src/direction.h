@@ -15,7 +15,7 @@ struct MoveDirection {
   constexpr MoveDirection(Direction dir, bool is_long = false) : dir(dir), is_long(is_long) {} 
 };
 
-class Types {
+class DirectionTypes {
   public:
     static const std::vector<std::vector<MoveDirection>> move_directions;
 

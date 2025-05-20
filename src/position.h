@@ -27,6 +27,8 @@ class Position {
     static const std::string StartposSfen;
     void DoMove(const Move& move);
     void UndoMove(const Move& move);
+    std::pair<int, int> FindKing(Color color);
+    bool IsSquareAttacked(int file, int rank, Color by_color);
 
   private:
     void PutPiece(int file, int rank, Piece piece);

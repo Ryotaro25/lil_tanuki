@@ -24,7 +24,7 @@ std::vector<Move> MoveGenerator::GenerateMoves(const Position& position) {
         continue;
       }
 
-      for (const auto& move_direction : Types::move_directions[static_cast<int>(piece_from)]) {
+      for (const auto& move_direction : DirectionTypes::move_directions[static_cast<int>(piece_from)]) {
         int max_distance = move_direction.is_long ? 8 : 1;
         int file_to = file_from;
         int rank_to = rank_from;
@@ -122,4 +122,20 @@ bool MoveGenerator::IsPawnExist(const Piece board[9][9], int file, Piece pawn) {
     }
   }
   return false;
+}
+
+std::vector<Move> MoveGenerator::GenerateLegalMoves(const Position& position) {
+  std::vector<Move> legal_moves;
+  auto pseudo_moves = GenerateMoves(position);
+
+  for (const auto& move : pseudo_moves) {
+    Position temp_pos = position;
+    temp_pos.DoMove(move);
+
+    auto [king_file, king_rank] = temp_pos.FindKing(position.side_to_move);
+    if (!temp_pos.IsSquareAttacked(king_file, king_rank, Opponent(position.side_to_move))) {
+      legal_moves.push_back(move);
+    }
+  }
+  return legal_moves;
 }
