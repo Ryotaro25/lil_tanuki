@@ -132,7 +132,7 @@ std::vector<Move> MoveGenerator::GenerateLegalMoves(const Position& position) {
     Position temp_pos = position;
     temp_pos.DoMove(move);
 
-    auto [king_file, king_rank] = temp_pos.FindKing(position.side_to_move);
+    auto [king_file, king_rank] = temp_pos.FindKing(move.side_to_move);
     if (!temp_pos.IsSquareAttacked(king_file, king_rank, Opponent(position.side_to_move))) {
       legal_moves.push_back(move);
     }

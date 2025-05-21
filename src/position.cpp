@@ -211,7 +211,8 @@ void Position::UndoMove(const Move& move) {
     PutHandPiece(move.piece_from);
   } else {
     // 盤面の駒を元の位置に戻す
-    PutPiece(move.file_from, move.rank_from, move.piece_from);
+    Piece original_piece = move.promotion ? PieceHelper::AsUnPromoted(move.piece_from) : move.piece_from;
+    PutPiece(move.file_from, move.rank_from, original_piece);
   }
 
   if (move.piece_to != Piece::NoPiece) {
@@ -270,3 +271,12 @@ bool Position::IsSquareAttacked(int file, int rank, Color by_color) {
   return false;
 }
 
+bool Position::IsKingInCheck(Color color, Position& position) {
+  auto [file, rank] = position.FindKing(color);
+  if (file == -1 || rank == -1) {
+    // 玉が見つからなかった場合（通常は起こらない）
+    return false;
+  }
+  Color opponent = (color == Color::Black) ? Color::White : Color::Black;
+  return position.IsSquareAttacked(file, rank, opponent);
+}

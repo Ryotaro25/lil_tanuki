@@ -26,8 +26,16 @@ namespace Searcher {
     int best_value = std::numeric_limits<int>::min();
     Move best_move = Move::RESIGN;
 
-    std::vector<Move> moves = MoveGenerator::GenerateMoves(position);
-    for (const auto& move : moves) {
+    std::vector<Move> moves = MoveGenerator::GenerateLegalMoves(position);
+    std::vector<Move> legal_moves;
+    for (Move move : moves) {
+      position.DoMove(move);
+      if (!Position::IsKingInCheck(move.side_to_move, position)) {
+        legal_moves.push_back(move);
+      }
+      position.UndoMove(move);
+    }
+    for (const auto& move : legal_moves) {
       if (move.piece_to == Piece::BlackKing || move.piece_to == Piece::WhiteKing) {
         return BestMove(move, std::numeric_limits<int>::max());
       }

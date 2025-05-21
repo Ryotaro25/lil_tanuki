@@ -66,4 +66,24 @@ bool PieceHelper::CanPutWithoutPromotion(Piece piece_from, int rank_to) {
           piece_from != P::WhiteKnight);
 }
 
+Piece PieceHelper::AsUnPromoted(Piece piece) {
+    switch (piece) {
+      case Piece::BlackPromotedPawn:    return Piece::BlackPawn;
+      case Piece::BlackPromotedLance:   return Piece::BlackLance;
+      case Piece::BlackPromotedKnight:  return Piece::BlackKnight;
+      case Piece::BlackPromotedSilver:  return Piece::BlackSilver;
+      case Piece::BlackHorse:      return Piece::BlackBishop;
+      case Piece::BlackDragon:     return Piece::BlackRook;
+
+      case Piece::WhitePromotedPawn:    return Piece::WhitePawn;
+      case Piece::WhitePromotedLance:   return Piece::WhiteLance;
+      case Piece::WhitePromotedKnight:  return Piece::WhiteKnight;
+      case Piece::WhitePromotedSilver:  return Piece::WhiteSilver;
+      case Piece::WhiteHorse:      return Piece::WhiteBishop;
+      case Piece::WhiteDragon:     return Piece::WhiteRook;
+
+      default:
+        return piece; // 成駒でなければそのまま返す
+    }
+  }
 

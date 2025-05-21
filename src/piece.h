@@ -12,6 +12,16 @@ enum class Color {
   NumColors
 };
 
+inline Color Opponent(Color c) {
+  switch (c) {
+    case Color::Black: return Color::White;
+    case Color::White: return Color::Black;
+    default:
+      assert(false && "Invalid color passed to Opponent()");
+      return Color::Black; // fallback（unreachable）
+  }
+}
+
 // 駒の種類
 enum class Piece {
   NoPiece,                // 駒なし
@@ -32,6 +42,7 @@ class PieceHelper {
     static char ToUsiChar(Piece piece);
     static bool CanPromote(Piece piece);
     static bool CanPutWithoutPromotion(Piece piece_from, int rank_to);
+    static Piece AsUnPromoted(Piece piece);
   
   private:
     static const std::array<Piece, static_cast<int>(Piece::NumPieces)> piece_to_opponent_hand_pieces;
